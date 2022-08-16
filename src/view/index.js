@@ -1,9 +1,10 @@
 import React from 'react'
 import { BsPlusLg, BsArrowClockwise, } from "react-icons/bs";
+import GetPropsUseState from '../components/GetPropsUseState';
 
 const View = (props) => {
 
-  const { clock, process, addProcess, allProcess, onClickReset, statusStyle, processTerminat } = props;
+  const { clock, process, addProcess, allProcess, onClickReset, statusStyle, processTerminat, } = props;
 
   return (
     <>
@@ -57,7 +58,7 @@ const View = (props) => {
                 <h5><b>Controller</b></h5>
                 <div style={{ display: "flex", justifyContent: "center" }}>
                   {/* <button type="button" className="btn btn-primary " disabled={startButton == true} style={{ display: "flex", alignItems: "center", marginRight: "8px" }} onClick={onClickStart}><BsPlayFill style={{ marginRight: "2px", }} />Start</button> */}
-                  <button type="button" className="btn btn-danger " disabled={allProcess == 0} style={{ display: "flex", alignItems: "center", }} onClick={onClickReset}><BsArrowClockwise style={{ marginRight: "2px", }} />Reset ชั่วคราวใช้ชั่วโครต</button>
+                  <button type="button" className="btn btn-danger " disabled={allProcess === 0} style={{ display: "flex", alignItems: "center", }} onClick={onClickReset}><BsArrowClockwise style={{ marginRight: "2px", }} />Reset</button>
                 </div>
               </div>
               <ul className="list-group list-group-flush">
@@ -181,6 +182,11 @@ const View = (props) => {
           </div>
         </div>
 
+        <div className="row">
+          <div className="col-12">
+            <GetPropsUseState />
+          </div>
+        </div>
       </div>
 
     </>

@@ -12,19 +12,22 @@ const Controller = (props) => {
   const [processTerminat, setProcessTerminat] = useState([])
 
 
+
+
   useEffect(() => {
 
     if (process.length !== 0) {
-
       for (let i = 0; i < process.length; i++) {
 
-        // console.log('Process', process[i].status)
-        if (i === 0 && process[0].execu_time !== process[0].burst_time) {
+        if (i === 0 && process[0].execu_time < process[0].burst_time) {
+
           process[0].status = "Running"
           process[0].execu_time++
 
+
         }
         else if (i !== 0) {
+
           process[i].status = "Ready"
           process[i].wait_time++
         } else if (process[0].execu_time === process[0].burst_time) {
@@ -34,7 +37,7 @@ const Controller = (props) => {
           //   return item.status === "Terminate"
           // })
           ter_q.push(process[0])
-          console.log('ter_q', ter_q)
+
           setProcessTerminat(ter_q)
           setAllProcess(process.length - 1)
           process.splice(0, 1)
@@ -75,7 +78,17 @@ const Controller = (props) => {
     countProcessId++
     let pc = [...process]
     let random_bt = randomNumber(3, 10);
-    pc.push({ process: countProcessId, status: 'New', atival_time: clock, burst_time: random_bt, execu_time: 0, wait_time: 0, io_time: 0 })
+    let random_ram = randomNumber(100, 400)
+    pc.push({
+      process: countProcessId,
+      status: 'New',
+      atival_time: clock,
+      burst_time: random_bt,
+      execu_time: 0,
+      wait_time: 0,
+      io_time: 0,
+      ram: random_ram,
+    })
     setAllProcess(process.length + 1)
     setProcess(pc)
 

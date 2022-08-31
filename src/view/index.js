@@ -5,6 +5,7 @@ import GetPropsUseState from '../components/GetPropsUseState';
 const View = (props) => {
 
   const { clock, process, addProcess, allProcess, onClickReset, statusStyle, processTerminat, } = props;
+  const total_ram = process.reduce((val, e) => val + e.ram, 0)
 
   return (
     <>
@@ -15,7 +16,9 @@ const View = (props) => {
             <div className="card overflow-auto" style={{ width: "100%", height: "450px" }}>
               <div className="card-header" style={{ display: 'flex', justifyContent: "space-between" }}>
                 <h5><b>Round Robin</b></h5>
-                <button type="button" className="btn btn-success " style={{ display: "flex", alignItems: "center", }} onClick={addProcess}><BsPlusLg style={{ marginRight: "2px", }} />Add Process</button>
+                {total_ram < 3800
+                  ? <button type="button" className="btn btn-success " style={{ display: "flex", alignItems: "center", }} onClick={addProcess}><BsPlusLg style={{ marginRight: "2px", }} />Add Process</button>
+                  : <button type="button" className="btn btn-danger " style={{ display: "flex", alignItems: "center", }} disabled>Out of memory</button>}
               </div>
               <ul className="list-group list-group-flush">
                 <li className="list-group-item">
@@ -29,6 +32,7 @@ const View = (props) => {
                         <th scope="col">Execution Time</th>
                         <th scope="col">Waiting Time</th>
                         <th scope="col">I/O Time</th>
+                        <th scope="col">RAM</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -43,6 +47,8 @@ const View = (props) => {
                             <td>{item.execu_time}</td>
                             <td>{item.wait_time}</td>
                             <td>{item.io_time}</td>
+
+                            <td>{item.ram} / MB</td>
                           </tr>
                         )
                       })}
@@ -58,7 +64,7 @@ const View = (props) => {
                 <h5><b>Controller</b></h5>
                 <div style={{ display: "flex", justifyContent: "center" }}>
                   {/* <button type="button" className="btn btn-primary " disabled={startButton == true} style={{ display: "flex", alignItems: "center", marginRight: "8px" }} onClick={onClickStart}><BsPlayFill style={{ marginRight: "2px", }} />Start</button> */}
-                  <button type="button" className="btn btn-danger " disabled={allProcess === 0} style={{ display: "flex", alignItems: "center", }} onClick={onClickReset}><BsArrowClockwise style={{ marginRight: "2px", }} />Reset</button>
+                  <button type="button" className="btn btn-danger " style={{ display: "flex", alignItems: "center", }} onClick={onClickReset}><BsArrowClockwise style={{ marginRight: "2px", }} />Reset</button>
                 </div>
               </div>
               <ul className="list-group list-group-flush">
@@ -79,6 +85,11 @@ const View = (props) => {
                       <tr>
                         <th scope="row">Process</th>
                         <td>{allProcess}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Total RAM</th>
+                        {total_ram > 3800 ? <td style={{ color: "red" }}>{total_ram} / 4096 MB </td> : <td>{total_ram} / 4096 MB </td>}
+
                       </tr>
 
 
@@ -107,7 +118,7 @@ const View = (props) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {process.map((item, index) => {
+                      {process.slice(1).map((item, index) => {
                         return (
                           <tr key={index}>
                             <td>Process:{item.process}</td>
@@ -184,7 +195,8 @@ const View = (props) => {
 
         <div className="row">
           <div className="col-12">
-            <GetPropsUseState />
+
+
           </div>
         </div>
       </div>

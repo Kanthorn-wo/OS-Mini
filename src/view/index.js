@@ -4,7 +4,7 @@ import GetPropsUseState from '../components/GetPropsUseState';
 
 const View = (props) => {
 
-  const { clock, process, addProcess, allProcess, onClickReset, statusStyle, processTerminat, readyQueue } = props;
+  const { clock, process, addProcess, allProcess, onClickReset, statusStyle, processTerminat, readyQueue, addIO, io } = props;
   const total_ram = process.reduce((val, e) => val + e.ram, 0)
 
   return (
@@ -27,9 +27,9 @@ const View = (props) => {
                       <tr>
                         <th scope="col">Process:ID</th>
                         <th scope="col">Status</th>
-                        <th scope="col">Arival Time / เวลาที่เข้ามา ณ ขณะนั้น</th>
-                        <th scope="col">Burst Time / เวลาที่ต้องใช้</th>
-                        <th scope="col">Execution Time / เวลาที่ทำ</th>
+                        <th scope="col">Arival Time</th>
+                        <th scope="col">Burst Time</th>
+                        <th scope="col">Execution Time</th>
                         <th scope="col">Waiting Time</th>
                         <th scope="col">I/O Time</th>
                         <th scope="col">RAM</th>
@@ -61,13 +61,13 @@ const View = (props) => {
             </div>
           </div>
           <div className="col-2" >
-            <div className="card" style={{ width: "100%", height: "450px" }}>
+            <div className="card card overflow-auto" style={{ height: "450px" }}>
               <div className="card-header" style={{ display: 'flex', justifyContent: "space-between" }}>
                 <h5><b>Controller</b></h5>
-                <div style={{ display: "flex", justifyContent: "center" }}>
-                  {/* <button type="button" className="btn btn-primary " disabled={startButton == true} style={{ display: "flex", alignItems: "center", marginRight: "8px" }} onClick={onClickStart}><BsPlayFill style={{ marginRight: "2px", }} />Start</button> */}
-                  <button type="button" className="btn btn-danger " style={{ display: "flex", alignItems: "center", }} onClick={onClickReset}><BsArrowClockwise style={{ marginRight: "2px", }} />Reset</button>
-                </div>
+
+                {/* <button type="button" className="btn btn-primary " disabled={startButton == true} style={{ display: "flex", alignItems: "center", marginRight: "8px" }} onClick={onClickStart}><BsPlayFill style={{ marginRight: "2px", }} />Start</button> */}
+                <button type="button" className="btn btn-danger " onClick={onClickReset}>Reset</button>
+
               </div>
               <ul className="list-group list-group-flush">
                 <li className="list-group-item">
@@ -181,7 +181,11 @@ const View = (props) => {
           <div className="col-2">
             <div className='card overflow-auto' style={{ width: "100%", height: "420px" }}>
               <div className='card-header'>
-                <h5><b>I/O Queue</b></h5>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <h5><b>I/O Queue</b></h5>
+                  <button type="button" className="btn btn-primary" onClick={addIO}>Add/IO</button>
+                </div>
+
               </div>
               <ul className="list-group list-group-flush">
                 <li className="list-group-item">
@@ -190,11 +194,18 @@ const View = (props) => {
                       <tr>
                         <th scope="col">ID</th>
                         <th scope="col">Status</th>
-                        <th scope="col">ADD Button</th>
+
                       </tr>
                     </thead>
                     <tbody>
-
+                      {io.map((item, index) => {
+                        return (
+                          <tr key={index}>
+                            <td>{item.id}</td>
+                            <td style={statusStyle(item.status)}><button type="button" className="btn btn-danger" >Close</button></td>
+                          </tr>
+                        )
+                      })}
                     </tbody>
                   </table>
                 </li>

@@ -1,10 +1,9 @@
 import React from 'react'
-import { BsPlusLg, BsArrowClockwise, } from "react-icons/bs";
-import GetPropsUseState from '../components/GetPropsUseState';
+import { BsPlusLg, } from "react-icons/bs";
 
 const View = (props) => {
 
-  const { clock, process, addProcess, allProcess, onClickReset, statusStyle, processTerminat, readyQueue, addIO, io } = props;
+  const { clock, process, addProcess, allProcess, onClickReset, statusStyle, processTerminat, readyQueue, io, requestIO, closeIO, closeProcess } = props;
   const total_ram = process.reduce((val, e) => val + e.ram, 0)
 
   return (
@@ -32,7 +31,9 @@ const View = (props) => {
                         <th scope="col">Execution Time</th>
                         <th scope="col">Waiting Time</th>
                         <th scope="col">I/O Time</th>
+                        <th scope="col">I/O Waiting</th>
                         <th scope="col">RAM</th>
+                        <th scope="col"></th>
 
                       </tr>
                     </thead>
@@ -42,13 +43,14 @@ const View = (props) => {
                           <tr key={index}>
                             <td>Process:{item.process}</td>
                             <td style={statusStyle(item.status)}>{item.status}</td>
-
                             <td>{item.atival_time}</td>
                             <td>{item.burst_time}</td>
                             <td>{item.execu_time}</td>
                             <td>{item.wait_time}</td>
                             <td>{item.io_time}</td>
+                            <td>{item.io_wait}</td>
                             <td>{item.ram} / MB</td>
+                            <td><button type="button" className="btn btn-danger" onClick={closeProcess(index)} >Terminate</button></td>
 
 
                           </tr>
@@ -183,7 +185,7 @@ const View = (props) => {
               <div className='card-header'>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <h5><b>I/O Queue</b></h5>
-                  <button type="button" className="btn btn-primary" onClick={addIO}>Add/IO</button>
+                  <button type="button" className="btn btn-primary" onClick={requestIO}>Add/IO</button>
                 </div>
 
               </div>
@@ -194,15 +196,16 @@ const View = (props) => {
                       <tr>
                         <th scope="col">ID</th>
                         <th scope="col">Status</th>
-
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody>
                       {io.map((item, index) => {
                         return (
                           <tr key={index}>
-                            <td>{item.id}</td>
-                            <td style={statusStyle(item.status)}><button type="button" className="btn btn-danger" >Close</button></td>
+                            <td>{item.process}</td>
+                            <td style={statusStyle(item.status)}>{item.status}</td>
+                            <td><button type="button" className="btn btn-danger" onClick={closeIO} >X</button></td>
                           </tr>
                         )
                       })}

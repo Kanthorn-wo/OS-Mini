@@ -1,175 +1,130 @@
 import React from 'react'
 import { useState, useEffect } from "react";
+import { SplitButton } from 'react-bootstrap';
 import View from '../view';
-let countProcessId = 0
-let timeQuantum = 10
-const Controller = (props) => {
-  // const { clock, setClock, process, setProcess, allProcess, setAllProcess, processTerminat, setProcessTerminat } = props;
+let timeQuantum = 5
+let index = 0, count = 1
 
-  const [clock, setClock] = useState(1)
-  const [process, setProcess] = useState([])
-  const [allProcess, setAllProcess] = useState(0)
-  const [processTerminat, setProcessTerminat] = useState([])
-  const [readyQueue, setReadyQueue] = useState([])
+const Controller = () => {
+
+  const [processList, setProcessList] = useState([]);
   const [io, setIo] = useState([])
-  const [ioProcess, setIoProcess] = useState(null);
+  const [clock, setClock] = useState(1);
+  const [ready, setReady] = useState([])
+  const [terminate, setTerminate] = useState([])
+  useEffect(() => {
+    const id = setInterval(() => {
+      setClock(prev => prev + 1)
 
+    }, 1000)
+    return () => clearInterval(id)
+
+  }, [])
+
+  let checkarr = processList.length
 
   useEffect(() => {
-    // loop jop q
-    if (process.length !== 0) {
-      let pc = process.filter((val) => val.status !== 'Terminate')
+    setProcessList(prev => {
+      let oldValue = [...prev]
+      for (let i = 0; i < oldValue.length; i++) {
+        if (oldValue[i]?.status == 'New') {
+          oldValue[i].status = 'Ready'
+        }
+      }
+      return oldValue
+
+    })
+    if (processList.length !== 0) {
+      let p = [...processList]
+      // let next = 0
+      if (p.length !== 0) {
+        if (index == p.length) {
+          index = 0
+        }
+        if (p[index].bursttime === p[index].excutiontime) {
+          p[index].status = "Terminate"
+          p[index].turnaround = p[index].excutiontime + p[index].waittingtime
+          if (index < processList.length) {
+            index += 1
+            count = 1
+          }
+        } else if (p[index].status === "Waiting") {
+          // p[index].iotime++
+          count = 1
+          index += 1
+        } else {
+          if (count <= timeQuantum) {
+            p[index].status = "Running"
+            p[index].excutiontime++
+            count++
+          } else {
+            p[index].status = "Ready"
+            count = 1
+            index += 1
+            // next++
+          }
+        }
+        for (let i = 0; i < p.length; i++) {
+          if (p[i].status === "Ready") {
+            p[i].waittingtime++
+          }
+        }
+        console.log('index', index)
+      }
+
       if (io.length !== 0) {
         let io1 = [...io];
         for (let i = 0; i < io.length; i++) {
           if (i === 0) {
-            let find_index = pc.findIndex((val) => val.process === io[i].process)
-            console.log('pc', pc)
+            let find_index = processList.findIndex((val) => val.id === io[i].id)
             io1[i].status = 'Running'
-            pc[find_index].io_time++;
+            processList[find_index].iotime++;
           } else {
-            let find_index = pc.findIndex((val) => val.process === io[i].process)
+            let find_index = processList.findIndex((val) => val.id === io[i].id)
             io1[i].status = 'Waiting'
-            pc[find_index].io_wait++;
+            processList[find_index].iowaittingtime++;
           }
         }
         setIo(io1)
-        setIoProcess(io1[0].process)
-      }
-
-      //loop check timequantum
-      for (let i = 0; i < timeQuantum; i++) {
-        if (i === 0 && process[0].execu_time < process[0].burst_time && process[0].status !== "Waiting") {
-          process[0].status = "Running"
-          process[0].execu_time++
-        } else {
-
-        }
-
-
-      }
-      //loop condition checkout jop q to ready q
-      for (let i = 0; i < process.length; i++) {
-        if (i === 0 && process[0].execu_time === timeQuantum && process[0].status === "Running") {
-          let ready_q = [...readyQueue]
-          process[0].status = "Ready"
-          setTimeout(() => {
-            ready_q.push(process[0])
-            setReadyQueue(ready_q)
-            process.splice(0, 1)
-          }, 500);
-
-        }
-
-
-        // set status ready besides arr[0] 
-        else if (i !== 0) {
-          process[i].status = "Ready"
-          process[i].wait_time++
-        }
-
-        // set terminat q
-        else if (process[0].execu_time === process[0].burst_time) {
-          let ter_q = [...processTerminat]
-          process[0].status = "Terminate"
-          ter_q.push(process[0])
-          setTimeout(() => {
-            setProcessTerminat(ter_q)
-            setAllProcess(process.length - 1)
-            process.splice(0, 1)
-          }, 500);
-
-        }
 
       }
 
+
+      let ready = processList.filter((i) => i.status === 'Ready')
+      setReady(ready)
     }
-    // revers ready q to job q
-    else {
-      setProcess(readyQueue)
-      setReadyQueue([])
-    }
-
-
-
   }, [clock])
 
-  //func cpu time
-  useEffect(() => {
-    const id = setInterval(() => {
-      setClock(prev => prev + 1)
-    }, 1000)
-    return () => clearInterval(id)
-  }, [])
-
-  // func random math
+  let waitTime = processList.reduce((i, val) => i + val.waittingtime, 0)
+  let avgWaitTime = waitTime / checkarr
+  let turnAround = processList.reduce((i, val) => i + val.turnaround, 0)
+  let avgTurnAround = turnAround / checkarr
+  let ramTotal = processList.reduce((i, val) => i + val.ram, 0)
   const randomNumber = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1) + min)
   }
 
-  // func add process to job q
   const addProcess = () => {
-    countProcessId++
-    let pc = [...process]
-    let random_bt = randomNumber(7, 20);
-    let random_ram = randomNumber(100, 600)
 
-    pc.push({
-      process: countProcessId,
-      status: 'New',
-      atival_time: clock,
-      burst_time: random_bt,
-      execu_time: 0,
-      wait_time: 0,
-      io_time: 0,
-      io_wait: 0,
-      ram: random_ram,
+    setProcessList((prve) => {
+      let oldValue = [...prve]
+      oldValue.push({
+        id: oldValue.length + 1,
+        status: "New",
+        arivaltime: clock,
+        bursttime: randomNumber(6, 15),
+        excutiontime: 0,
+        waittingtime: 0,
+        iotime: 0,
+        iowaittingtime: 0,
+        ram: randomNumber(100, 500),
+        turnaround: 0
+      })
 
+      return oldValue
     })
-    setTimeout(() => {
-      setAllProcess(process.length + 1)
-      setProcess(pc)
-    }, 100);
 
 
-  }
-
-  const requestIO = () => {
-    let pc = [...process];
-    let io_req = [...io];
-    pc[0].status = "Waiting";
-    io_req.push({ process: pc[0].process, status: "Running" });
-    setIo(io_req);
-    setProcess(pc);
-  }
-
-
-  const closeIO = () => {
-    let pc = [...process];
-    let io1 = io;
-    let i = pc.findIndex((i) => i.process === io[0].process)
-    pc[i].status = 'Ready';
-    io1.shift()
-    setIo(io1);
-    setProcess(pc);
-  }
-
-  const closeProcess = (id) => {
-
-    console.log('id', id)
-
-
-
-  }
-
-
-  const onClickReset = () => {
-    setProcess([])
-    setAllProcess(0)
-    setClock(0)
-    setProcessTerminat([])
-    setReadyQueue([])
-    setIo([])
   }
 
   const statusStyle = (value) => {
@@ -187,40 +142,64 @@ const Controller = (props) => {
       return color
     } else if (value === 'Terminate') {
       const color = {
-        backgroundColor: '#dc3545',
-        color: 'white'
-      }
-      return color
-    } else if (value === 'Ready') {
-      const color = {
-        backgroundColor: '#FFC107',
-        color: 'white'
-      }
-      return color
-    } else if (value === 'Waiting') {
-      const color = {
-        backgroundColor: '#6C757D',
-        color: 'white'
+        backgroundColor: '#FFB7B7',
+        color: 'white',
       }
       return color
     }
   }
 
+  const requestIO = () => {
+    let pc = [...processList];
+    let ioreq = [...io];
+    pc[index].status = "Waiting";
+    ioreq.push({ id: processList[index].id, status: "Running" });
+    setIo(ioreq);
+    setProcessList(pc);
+  }
+
+  const closeIO = () => {
+    let p = [...processList];
+    let io1 = io;
+    let i = p.findIndex((i) => i.id === io[0].id)
+    p[i].status = 'Ready';
+    io1.shift()
+    setIo(io1);
+    setProcessList(p);
+  }
+  const disIO = (status) => {
+    if (status === 'Running')
+      return false;
+    else
+      return true;
+  }
+  const onTerminate = () => {
+    let p = [...processList]
+    let findTerminate = p.find((i) => i.status === "Running")
+    findTerminate.excutiontime = findTerminate.bursttime
+
+    console.log('findTerminate', findTerminate)
+  }
+
   return (
     <>
       <View
-        clock={clock}
-        process={process}
+        process={processList}
         addProcess={addProcess}
-        onClickReset={onClickReset}
-        allProcess={allProcess}
+        clock={clock}
         statusStyle={statusStyle}
-        processTerminat={processTerminat}
-        readyQueue={readyQueue}
-        requestIO={requestIO}
+        ready={ready}
+        terminate={terminate}
+        timeQuantum={timeQuantum}
         io={io}
+        requestIO={requestIO}
+        checkarr={checkarr}
         closeIO={closeIO}
-        closeProcess={closeProcess}
+        disIO={disIO}
+        avgWaitTime={avgWaitTime}
+        avgTurnAround={avgTurnAround}
+        ramTotal={ramTotal}
+        onTerminate={onTerminate}
       />
     </>
   )

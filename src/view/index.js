@@ -14,7 +14,7 @@ const View = (props) => {
       <Container fluid >
         <Row >
           <Col sm={9} className="mt-3">
-            <Card>
+            <Card style={{ height: 450 }} className="overflow-auto">
               <Card.Header style={{ display: "flex", justifyContent: "space-between" }}>
                 <p>Round Robin</p>
                 {props.ramTotal < 4096 - 500 ? <Button variant="success" onClick={props.addProcess}>Add Procrss</Button> : <Button variant="danger" disabled >Out Of Memory</Button>}
@@ -59,11 +59,11 @@ const View = (props) => {
             </Card>
           </Col>
 
-          <Col sm={3} className="mt-3">
-            <Card>
+          <Col sm={3} className="mt-3" >
+            <Card style={{ height: "100%" }} className="overflow-auto" >
               <Card.Header style={{ display: "flex", justifyContent: "space-between" }}>
                 <p>Controller</p>
-                {props.checkarr > 0 ? <Button variant="danger" onClick={props.onTerminate}>Terminate</Button> : <Button variant="danger" onClick={props.onTerminate} disabled>Terminate</Button>}
+                {props.checkArr > 0 ? <Button variant="danger" onClick={props.onTerminate}>Terminate</Button> : <Button variant="danger" onClick={props.onTerminate} disabled>Terminate</Button>}
 
               </Card.Header>
               <Card.Body>
@@ -109,8 +109,8 @@ const View = (props) => {
         </Row>
 
         <Row >
-          <Col sm={5} className="mt-3">
-            <Card>
+          <Col sm={9} className="mt-3">
+            <Card style={{ height: 450 }} className="overflow-auto">
               <Card.Header>Ready
 
               </Card.Header>
@@ -142,12 +142,12 @@ const View = (props) => {
             </Card>
           </Col>
 
-          <Col sm={4} className="mt-3">
-            <Card>
+          <Col sm={3} className="mt-3">
+            <Card style={{ height: 450 }} className="overflow-auto">
               <Card.Header style={{ display: "flex", justifyContent: "space-between" }}>
                 <p>IO</p>
                 <Button variant="primary"
-                  disabled={props.checkarr === 0}
+                  disabled={props.checkArr === 0}
                   onClick={props.requestIO}>Add IO
                 </Button>
               </Card.Header>
@@ -161,9 +161,9 @@ const View = (props) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {props.io.map((item) => {
+                    {props.io.map((item, index) => {
                       return (
-                        <tr key={item.id}>
+                        <tr key={index}>
                           <td>{item.id}</td>
                           <td>{item.status}</td>
                           <td>  <Button variant="danger" disabled={props.disIO(item.status)} onClick={props.closeIO} >Close</Button></td>

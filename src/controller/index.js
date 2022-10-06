@@ -3,9 +3,7 @@ import { useState, useEffect } from "react";
 import View from '../view';
 let timeQuantum = 5
 let index = 0, count = 1
-
 const Controller = () => {
-
   const [processList, setProcessList] = useState([]);
   const [io, setIo] = useState([])
   const [clock, setClock] = useState(1);
@@ -21,7 +19,7 @@ const Controller = () => {
 
   }, [])
 
-  let checkarr = processList.length
+  let checkArr = processList.length
 
   useEffect(() => {
     setProcessList(prev => {
@@ -76,13 +74,13 @@ const Controller = () => {
         let io1 = [...io];
         for (let i = 0; i < io.length; i++) {
           if (i === 0) {
-            let find_index = processList.findIndex((val) => val.id === io[i].id)
+            let findIndex = processList.findIndex((val) => val.id === io[i].id)
             io1[i].status = 'Running'
-            processList[find_index].iotime++;
+            processList[findIndex].iotime++;
           } else {
-            let find_index = processList.findIndex((val) => val.id === io[i].id)
+            let findIndex = processList.findIndex((val) => val.id === io[i].id)
             io1[i].status = 'Waiting'
-            processList[find_index].iowaittingtime++;
+            processList[findIndex].iowaittingtime++;
           }
         }
         setIo(io1)
@@ -96,16 +94,16 @@ const Controller = () => {
   }, [clock])
 
   let waitTime = processList?.reduce((i, val) => i + val.waittingtime, 0)
-  let avgWaitTime = waitTime / checkarr
+  let avgWaitTime = waitTime / checkArr
   let turnAround = processList?.reduce((i, val) => i + val.turnaround, 0)
-  let avgTurnAround = turnAround / checkarr
+  let avgTurnAround = turnAround / checkArr
   let ramTotal = processList?.reduce((i, val) => i + val.ram, 0)
   let fillProcessTerminat = processList?.filter((i) => i.status !== "Terminate")
   let checkProcessNoneTerminate = fillProcessTerminat.length
   let fillProcessRunning = processList?.find((i) => i.status === "Running")
   let fillStatusequalTerminate = processList?.filter((i) => i.status === "Terminate")
-  console.log('checkProcessNoneTerminate', checkProcessNoneTerminate)
-  console.log('ioLenght', io.length)
+  // console.log('checkProcessNoneTerminate', checkProcessNoneTerminate)
+  // console.log('ioLenght', io.length)
   const randomNumber = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1) + min)
   }
@@ -210,7 +208,7 @@ const Controller = () => {
         timeQuantum={timeQuantum}
         io={io}
         requestIO={requestIO}
-        checkarr={checkarr}
+        checkArr={checkArr}
         closeIO={closeIO}
         disIO={disIO}
         avgWaitTime={avgWaitTime}

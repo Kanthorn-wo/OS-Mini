@@ -41,9 +41,9 @@ const Controller = () => {
         if (index == p.length) {
           index = 0
         }
-        if (p[index].bursttime === p[index].excutiontime) {
+        if (p[index].checkter === true) {
           p[index].status = "Terminate"
-          p[index].turnaround = p[index].excutiontime + p[index].waittingtime
+          p[index].turnaround = p[index].bursttime - p[index].arivaltime
           if (index < processList.length) {
             index += 1
             count = 1
@@ -55,7 +55,7 @@ const Controller = () => {
         } else {
           if (count <= timeQuantum) {
             p[index].status = "Running"
-            p[index].excutiontime++
+            p[index].bursttime++
             count++
           } else {
             p[index].status = "Ready"
@@ -112,13 +112,14 @@ const Controller = () => {
         id: oldValue.length + 1,
         status: "New",
         arivaltime: clock,
-        bursttime: randomNumber(6, 15),
+        bursttime: 0,
         excutiontime: 0,
         waittingtime: 0,
         iotime: 0,
         iowaittingtime: 0,
         ram: randomNumber(100, 500),
-        turnaround: 0
+        turnaround: 0,
+        checkter: null
       })
 
       return oldValue
@@ -150,7 +151,7 @@ const Controller = () => {
   }
 
   const requestIO = () => {
-    let pc = [...processList];
+    let pc = [...processList]
     let ioreq = [...io];
     pc[index].status = "Waiting";
     ioreq.push({ id: processList[index].id, status: "Running" });
@@ -176,9 +177,9 @@ const Controller = () => {
   const onTerminate = () => {
     let p = [...processList]
     let findTerminate = p.find((i) => i.status === "Running")
-    findTerminate.excutiontime = findTerminate.bursttime
+    findTerminate.checkter = true
 
-    console.log('findTerminate', findTerminate)
+
   }
 
   return (

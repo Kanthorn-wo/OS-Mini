@@ -28,7 +28,6 @@ const View = (props) => {
                       <th>Status</th>
                       <th>Arival Time</th>
                       <th>Burst Time</th>
-                      <th>Execution Time</th>
                       <th>Waiting Time</th>
                       <th>I/O Time</th>
                       <th>I/O WattingTime</th>
@@ -44,7 +43,6 @@ const View = (props) => {
                           <td style={props.statusStyle(item.status)}>{item.status}</td>
                           <td>{item.arivaltime}</td>
                           <td>{item.bursttime}</td>
-                          <td>{item.excutiontime}</td>
                           <td>{item.waittingtime}</td>
                           <td>{item.iotime}</td>
                           <td>{item.iowaittingtime}</td>

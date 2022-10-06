@@ -63,7 +63,7 @@ const View = (props) => {
             <Card style={{ height: "100%" }} className="overflow-auto" >
               <Card.Header style={{ display: "flex", justifyContent: "space-between" }}>
                 <p>Controller</p>
-                {props.checkArr > 0 ? <Button variant="danger" onClick={props.onTerminate}>Terminate</Button> : <Button variant="danger" onClick={props.onTerminate} disabled>Terminate</Button>}
+                {props.checkProcessNoneTerminate > 0 ? <Button variant="danger" onClick={props.onTerminate}>Terminate</Button> : <Button variant="danger" onClick={props.onTerminate} disabled>Terminate</Button>}
 
               </Card.Header>
               <Card.Body>

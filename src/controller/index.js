@@ -97,8 +97,8 @@ const Controller = () => {
   let avgWaitTime = waitTime / checkArr
   let turnAround = processList?.reduce((i, val) => i + val.turnaround, 0)
   let avgTurnAround = turnAround / checkArr
-  let ramTotal = processList?.reduce((i, val) => i + val.ram, 0)
   let fillProcessTerminat = processList?.filter((i) => i.status !== "Terminate")
+  let ramTotal = fillProcessTerminat?.reduce((i, val) => i + val.ram, 0)
   let checkProcessNoneTerminate = fillProcessTerminat.length
   let fillProcessRunning = processList?.find((i) => i.status === "Running")
   let fillStatusequalTerminate = processList?.filter((i) => i.status === "Terminate")

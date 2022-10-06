@@ -187,11 +187,11 @@ const Controller = () => {
   }
   const onTerminate = () => {
     let p = [...processList]
-    if (fillStatusequalTerminate.length !== processList.length) {
+    if (fillStatusequalTerminate.length !== processList.length && io.length !== checkProcessNoneTerminate) {
       let findTerminate = p.find((i) => i.status === "Running")
       findTerminate.checkter = true
     } else {
-      alert("แจ้งเตือน: Process มีสถานะเป็น Terminate ทั้งหมดเเล้ว")
+      alert("แจ้งเตือน: Process มีสถานะเป็น Terminate ทั้งหมดเเล้ว หรือ ไม่มี Process ?ี่มีสถานะ Running")
     }
 
 

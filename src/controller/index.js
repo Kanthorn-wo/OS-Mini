@@ -1,6 +1,5 @@
 import React from 'react'
 import { useState, useEffect } from "react";
-import { SplitButton } from 'react-bootstrap';
 import View from '../view';
 let timeQuantum = 5
 let index = 0, count = 1
@@ -11,7 +10,8 @@ const Controller = () => {
   const [io, setIo] = useState([])
   const [clock, setClock] = useState(1);
   const [ready, setReady] = useState([])
-  const [terminate, setTerminate] = useState([])
+  // const [processIsRunning, setProcessIsRunning] = useState([])
+
   useEffect(() => {
     const id = setInterval(() => {
       setClock(prev => prev + 1)
@@ -43,7 +43,7 @@ const Controller = () => {
         }
         if (p[index].checkter === true) {
           p[index].status = "Terminate"
-          p[index].turnaround = p[index].bursttime - p[index].arivaltime
+          p[index].turnaround = p[index].bursttime + p[index].waittingtime
           if (index < processList.length) {
             index += 1
             count = 1
@@ -69,7 +69,7 @@ const Controller = () => {
             p[i].waittingtime++
           }
         }
-        console.log('index', index)
+        // console.log('index', index)
       }
 
       if (io.length !== 0) {
@@ -95,11 +95,17 @@ const Controller = () => {
     }
   }, [clock])
 
-  let waitTime = processList.reduce((i, val) => i + val.waittingtime, 0)
+  let waitTime = processList?.reduce((i, val) => i + val.waittingtime, 0)
   let avgWaitTime = waitTime / checkarr
-  let turnAround = processList.reduce((i, val) => i + val.turnaround, 0)
+  let turnAround = processList?.reduce((i, val) => i + val.turnaround, 0)
   let avgTurnAround = turnAround / checkarr
-  let ramTotal = processList.reduce((i, val) => i + val.ram, 0)
+  let ramTotal = processList?.reduce((i, val) => i + val.ram, 0)
+  let fillProcessTerminat = processList?.filter((i) => i.status !== "Terminate")
+  let checkProcessNoneTerminate = fillProcessTerminat.length
+  let fillProcessRunning = processList?.find((i) => i.status === "Running")
+  let fillStatusequalTerminate = processList?.filter((i) => i.status === "Terminate")
+  // console.log('fillStausequalTerminate', fillStatusequalTerminate.length)
+  // console.log('pro', processList.length)
   const randomNumber = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1) + min)
   }
@@ -153,10 +159,15 @@ const Controller = () => {
   const requestIO = () => {
     let pc = [...processList]
     let ioreq = [...io];
-    pc[index].status = "Waiting";
-    ioreq.push({ id: processList[index].id, status: "Running" });
-    setIo(ioreq);
-    setProcessList(pc);
+    if (io.length !== pc.length) {
+      pc[index].status = "Waiting";
+      ioreq.push({ id: processList[index].id, status: "Running" });
+      setIo(ioreq);
+      setProcessList(pc);
+    } else {
+      alert("แจ้งเตือน: IO Request เต็มเเล้ว")
+    }
+
   }
 
   const closeIO = () => {
@@ -176,8 +187,13 @@ const Controller = () => {
   }
   const onTerminate = () => {
     let p = [...processList]
-    let findTerminate = p.find((i) => i.status === "Running")
-    findTerminate.checkter = true
+    if (fillStatusequalTerminate.length !== processList.length) {
+      let findTerminate = p.find((i) => i.status === "Running")
+      findTerminate.checkter = true
+    } else {
+      alert("แจ้งเตือน: Process มีสถานะเป็น Terminate ทั้งหมดเเล้ว จึงกดไม่ได้")
+    }
+
 
 
   }
@@ -190,7 +206,7 @@ const Controller = () => {
         clock={clock}
         statusStyle={statusStyle}
         ready={ready}
-        terminate={terminate}
+        fillProcessRunning={fillProcessRunning}
         timeQuantum={timeQuantum}
         io={io}
         requestIO={requestIO}
@@ -201,6 +217,7 @@ const Controller = () => {
         avgTurnAround={avgTurnAround}
         ramTotal={ramTotal}
         onTerminate={onTerminate}
+        checkProcessNoneTerminate={checkProcessNoneTerminate}
       />
     </>
   )

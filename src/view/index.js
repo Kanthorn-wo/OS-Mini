@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { lazy } from 'react'
 import Table from 'react-bootstrap/Table';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
@@ -75,13 +75,17 @@ const View = (props) => {
                     </tr>
 
                     <tr>
-                      <td>CPU Process</td>
-                      <td>{props.checkarr}</td>
+                      <td>Process List</td>
+                      <td>{props.checkProcessNoneTerminate}</td>
                     </tr>
 
                     <tr>
                       <td>Time Quantum</td>
                       <td>{props.timeQuantum}</td>
+                    </tr>
+                    <tr>
+                      <td>Program Counter</td>
+                      <td>{props.fillProcessRunning?.id}</td>
                     </tr>
 
                     <tr>
@@ -97,8 +101,6 @@ const View = (props) => {
                       <td>{props.avgTurnAround.toFixed(2)}</td>
                     </tr>
                   </thead>
-
-
 
                 </Table>
               </Card.Body>

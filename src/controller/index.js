@@ -189,7 +189,7 @@ const Controller = () => {
       let findTerminate = p.find((i) => i.status === "Running")
       findTerminate.checkter = true
     } else {
-      alert("แจ้งเตือน: Process มีสถานะเป็น Terminate ทั้งหมดเเล้ว หรือ ไม่มี Process ?ี่มีสถานะ Running")
+      alert("แจ้งเตือน: Process มีสถานะเป็น Terminate ทั้งหมดเเล้ว หรือ ไม่มี Process ที่มีสถานะ Running")
     }
 
 

@@ -104,8 +104,8 @@ const Controller = () => {
   let checkProcessNoneTerminate = fillProcessTerminat.length
   let fillProcessRunning = processList?.find((i) => i.status === "Running")
   let fillStatusequalTerminate = processList?.filter((i) => i.status === "Terminate")
-  // console.log('fillStausequalTerminate', fillStatusequalTerminate.length)
-  // console.log('pro', processList.length)
+  console.log('checkProcessNoneTerminate', checkProcessNoneTerminate)
+  console.log('ioLenght', io.length)
   const randomNumber = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1) + min)
   }
@@ -159,13 +159,13 @@ const Controller = () => {
   const requestIO = () => {
     let pc = [...processList]
     let ioreq = [...io];
-    if (io.length !== pc.length) {
+    if (io.length !== checkProcessNoneTerminate) {
       pc[index].status = "Waiting";
       ioreq.push({ id: processList[index].id, status: "Running" });
       setIo(ioreq);
       setProcessList(pc);
     } else {
-      alert("แจ้งเตือน: IO Request เต็มเเล้ว")
+      alert("แจ้งเตือน: เพิ่ม IO Request ไม่ได้เเล้วเนื่องจาก Process เป็น Terminate หมดเเล้ว หรือ ไม่มี Process ให้ IO Request ")
     }
 
   }
@@ -191,7 +191,7 @@ const Controller = () => {
       let findTerminate = p.find((i) => i.status === "Running")
       findTerminate.checkter = true
     } else {
-      alert("แจ้งเตือน: Process มีสถานะเป็น Terminate ทั้งหมดเเล้ว จึงกดไม่ได้")
+      alert("แจ้งเตือน: Process มีสถานะเป็น Terminate ทั้งหมดเเล้ว")
     }
 
 

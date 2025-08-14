@@ -1,13 +1,10 @@
-import React from 'react'
-
-const Model = (props) => {
-  console.log('props', props)
-  return (
-    <div>Model Page
-      {props.text}
-
-    </div>
-  )
+export const PCB = {
+  process: countProcessId,
+  status: 'New',
+  atival_time: clock,
+  burst_time: random_bt,
+  execu_time: 5,
+  wait_time: 0,
+  io_time: 0,
+  ram: random_ram,
 }
-
-export default Model

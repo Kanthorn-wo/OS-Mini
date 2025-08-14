@@ -1,57 +1,135 @@
 import React from 'react'
 import { useState, useEffect } from "react";
-import { propTypes } from 'react-bootstrap/esm/Image';
 import View from '../view';
-let countProcess = 0;
-
+let timeQuantum = 5
+let index = 0, count = 1
 const Controller = () => {
+  const [processList, setProcessList] = useState([]);
+  const [io, setIo] = useState([])
+  const [clock, setClock] = useState(1);
+  const [ready, setReady] = useState([])
+  // const [processIsRunning, setProcessIsRunning] = useState([])
 
-  const [clock, setClock] = useState(0)
-  const [process, setProcess] = useState([])
-  const [allProcess, setAllProcess] = useState(0)
-  const [processTerminat, setProcessTerminat] = useState([])
   useEffect(() => {
-    if (process.length !== 0) {
-      process.map((item) => {
-        if (item.execu_time < item.burst_time && item.burst_time !== 0) {
-          item.status = "Running"
-          item.execu_time++
-          if (item.execu_time === item.burst_time) {
-            item.status = "Terminate"
-            const fill_Ter = process.filter((val) => {
-              return val.status === "Terminate"
-            })
-            setProcessTerminat(fill_Ter)
-          }
-        }
-      })
-    }
-
     const id = setInterval(() => {
-      setClock(clock + 1)
+      setClock(prev => prev + 1)
+
     }, 1000)
     return () => clearInterval(id)
+
+  }, [])
+
+  let checkArr = processList.length
+
+  useEffect(() => {
+    setProcessList(prev => {
+      let oldValue = [...prev]
+      for (let i = 0; i < oldValue.length; i++) {
+        if (oldValue[i]?.status == 'New') {
+          oldValue[i].status = 'Ready'
+        }
+      }
+      return oldValue
+
+    })
+    if (processList.length !== 0) {
+      let p = [...processList]
+      // let next = 0
+      if (p.length !== 0) {
+        if (index == p.length) {
+          index = 0
+        }
+        if (p[index].checkter === true) {
+          p[index].status = "Terminate"
+          p[index].turnaround = p[index].bursttime + p[index].waittingtime
+          if (index < processList.length) {
+            index += 1
+            count = 1
+          }
+        } else if (p[index].status === "Waiting") {
+          // p[index].iotime++
+          count = 1
+          index += 1
+        } else {
+          if (count <= timeQuantum) {
+            p[index].status = "Running"
+            p[index].bursttime++
+            count++
+          } else {
+            p[index].status = "Ready"
+            count = 1
+            index += 1
+            // next++
+          }
+        }
+        for (let i = 0; i < p.length; i++) {
+          if (p[i].status === "Ready") {
+            p[i].waittingtime++
+          }
+        }
+        // console.log('index', index)
+      }
+
+      if (io.length !== 0) {
+        let io1 = [...io];
+        for (let i = 0; i < io.length; i++) {
+          if (i === 0) {
+            let findIndex = processList.findIndex((val) => val.id === io[i].id)
+            io1[i].status = 'Running'
+            processList[findIndex].iotime++;
+          } else {
+            let findIndex = processList.findIndex((val) => val.id === io[i].id)
+            io1[i].status = 'Waiting'
+            processList[findIndex].iowaittingtime++;
+          }
+        }
+        setIo(io1)
+
+      }
+
+
+      let ready = processList.filter((i) => i.status === 'Ready')
+      setReady(ready)
+    }
   }, [clock])
 
+  let waitTime = processList?.reduce((i, val) => i + val.waittingtime, 0)
+  let avgWaitTime = waitTime / checkArr
+  let turnAround = processList?.reduce((i, val) => i + val.turnaround, 0)
+  let avgTurnAround = turnAround / checkArr
+  let fillProcessTerminat = processList?.filter((i) => i.status !== "Terminate")
+  let ramTotal = fillProcessTerminat?.reduce((i, val) => i + val.ram, 0)
+  let checkProcessNoneTerminate = fillProcessTerminat.length
+  let fillProcessRunning = processList?.find((i) => i.status === "Running")
+  let fillStatusequalTerminate = processList?.filter((i) => i.status === "Terminate")
+  // console.log('checkProcessNoneTerminate', checkProcessNoneTerminate)
+  // console.log('ioLenght', io.length)
   const randomNumber = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1) + min)
   }
 
   const addProcess = () => {
-    countProcess++;
-    let pc = [...process]
-    let random_bt = randomNumber(3, 20);
-    pc.push({ process: countProcess, status: 'New', atival_time: clock, burst_time: random_bt, execu_time: 0, wait_time: 0, io_time: 0 })
-    setAllProcess(countProcess)
-    setProcess(pc)
 
-  }
+    setProcessList((prve) => {
+      let oldValue = [...prve]
+      oldValue.push({
+        id: oldValue.length + 1,
+        status: "New",
+        arivaltime: clock,
+        bursttime: 0,
+        excutiontime: 0,
+        waittingtime: 0,
+        iotime: 0,
+        iowaittingtime: 0,
+        ram: randomNumber(100, 500),
+        turnaround: 0,
+        checkter: null
+      })
 
-  const onClickReset = () => {
-    setProcess([])
-    setAllProcess(countProcess = 0)
-    setClock(0)
-    setProcessTerminat([])
+      return oldValue
+    })
+
+
   }
 
   const statusStyle = (value) => {
@@ -69,23 +147,75 @@ const Controller = () => {
       return color
     } else if (value === 'Terminate') {
       const color = {
-        backgroundColor: '#dc3545',
-        color: 'white'
+        backgroundColor: '#FFB7B7',
+        color: 'white',
       }
       return color
     }
   }
 
+  const requestIO = () => {
+    let pc = [...processList]
+    let ioreq = [...io];
+    if (io.length !== checkProcessNoneTerminate) {
+      pc[index].status = "Waiting";
+      ioreq.push({ id: processList[index].id, status: "Running" });
+      setIo(ioreq);
+      setProcessList(pc);
+    } else {
+      alert("แจ้งเตือน: เพิ่ม IO Request ไม่ได้เเล้วเนื่องจาก Process เป็น Terminate หมดเเล้ว หรือ ไม่มี Process ให้ IO Request ")
+    }
+
+  }
+
+  const closeIO = () => {
+    let p = [...processList];
+    let io1 = io;
+    let i = p.findIndex((i) => i.id === io[0].id)
+    p[i].status = 'Ready';
+    io1.shift()
+    setIo(io1);
+    setProcessList(p);
+  }
+  const disIO = (status) => {
+    if (status === 'Running')
+      return false;
+    else
+      return true;
+  }
+  const onTerminate = () => {
+    let p = [...processList]
+    if (fillStatusequalTerminate.length !== processList.length && io.length !== checkProcessNoneTerminate) {
+      let findTerminate = p.find((i) => i.status === "Running")
+      findTerminate.checkter = true
+    } else {
+      alert("แจ้งเตือน: Process มีสถานะเป็น Terminate ทั้งหมดเเล้ว หรือ ไม่มี Process ที่มีสถานะ Running")
+    }
+
+
+
+  }
+
   return (
     <>
       <View
-        clock={clock}
-        process={process}
+        process={processList}
         addProcess={addProcess}
-        onClickReset={onClickReset}
-        allProcess={allProcess}
+        clock={clock}
         statusStyle={statusStyle}
-        processTerminat={processTerminat}
+        ready={ready}
+        fillProcessRunning={fillProcessRunning}
+        timeQuantum={timeQuantum}
+        io={io}
+        requestIO={requestIO}
+        checkArr={checkArr}
+        closeIO={closeIO}
+        disIO={disIO}
+        avgWaitTime={avgWaitTime}
+        avgTurnAround={avgTurnAround}
+        ramTotal={ramTotal}
+        onTerminate={onTerminate}
+        checkProcessNoneTerminate={checkProcessNoneTerminate}
       />
     </>
   )
